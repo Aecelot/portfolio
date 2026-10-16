@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<index_config>
+  <!-- ==============================================================================
+       EMBEDDING MODEL CONFIGURATION
+       ============================================================================== -->
+  <embedding>
+    <model>BAAI/bge-base-en</model>
+    <normalize_embeddings>true</normalize_embeddings>
+    <batch_size>64</batch_size>
+  </embedding>
+
+  <!-- ==============================================================================
+       FAISS INDEX CONFIGURATION
+       ============================================================================== -->
+  <ann>
+    <type>faiss_flat_ip</type>
+    <hnsw>
+      <M>32</M>
+      <efConstruction>200</efConstruction>
+      <efSearch>96</efSearch>
+    </hnsw>
+  </ann>
+
+  <!-- ==============================================================================
+       SEARCH PARAMETERS
+       ============================================================================== -->
+  <search>
+    <topk>
+      <ann>50</ann>
+      <rerank>5</rerank>
+    </topk>
+  </search>
+
+  <!-- ==============================================================================
+       RERANKER CONFIGURATION (OPTIONAL)
+       ============================================================================== -->
+  <reranker>
+    <enabled>false</enabled>
+    <model>BAAI/bge-reranker-base</model>
+  </reranker>
+</index_config>

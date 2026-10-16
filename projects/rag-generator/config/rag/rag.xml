@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rag_config>
+  <!-- ==============================================================================
+       CHUNKING CONFIGURATION
+       ============================================================================== -->
+  <chunking>
+    <token_target>320</token_target>
+    <token_min>120</token_min>
+    <token_max>450</token_max>
+    <overlap_pct>0.15</overlap_pct>
+    <method>semantic_sentences</method>
+    <target_tokens>550</target_tokens>
+    <overlap_ratio>0.12</overlap_ratio>
+    <promote_blocks>
+      <block>table</block>
+      <block>code</block>
+      <block>figure</block>
+      <block>quote</block>
+    </promote_blocks>
+  </chunking>
+
+  <!-- ==============================================================================
+       INGESTION CONFIGURATION
+       ============================================================================== -->
+  <ingestion>
+    <input_glob>corpus/**/*.md</input_glob>
+    <output_jsonl>storage/store/meta.jsonl</output_jsonl>
+    <rejects_log>storage/store/rejects.log</rejects_log>
+  </ingestion>
+
+  <!-- ==============================================================================
+       ENTITY PROCESSING CONFIGURATION
+       ============================================================================== -->
+  <entity_processing>
+    <alias_map_path>data/alias_map.json</alias_map_path>
+    <entities_xml_path>data/entities.xml</entities_xml_path>
+    <entity_coverage_min>0.60</entity_coverage_min>
+    <reject_rate_max>0.05</reject_rate_max>
+    <fuzzy_matching>false</fuzzy_matching>
+  </entity_processing>
+
+  <!-- ==============================================================================
+       DOMAIN MAPPING CONFIGURATION
+       ============================================================================== -->
+  <domains>
+    <domain name="bestiary">
+      <path_glob>**/bestiary*.md</path_glob>
+      <type>creature_profile</type>
+    </domain>
+    <domain name="world_overview">
+      <path_glob>**/world_overview.md</path_glob>
+      <type>world_overview</type>
+    </domain>
+    <domain name="geography">
+      <path_glob>**/geography.md</path_glob>
+      <type>geographical_content</type>
+    </domain>
+    <domain name="history">
+      <path_glob>**/history.md</path_glob>
+      <type>historical_content</type>
+    </domain>
+    <domain name="important_characters">
+      <path_glob>**/important_characters*.md</path_glob>
+      <type>character_bio</type>
+    </domain>
+    <domain name="character_creation_guide">
+      <path_glob>**/character_creation_guide.md</path_glob>
+      <type>character_creation</type>
+    </domain>
+    <domain name="character-needs-system">
+      <path_glob>**/character-needs-system.md</path_glob>
+      <type>character_system</type>
+    </domain>
+    <domain name="side_characters_3">
+      <path_glob>**/side_characters_3.md</path_glob>
+      <type>character_bio</type>
+    </domain>
+    <domain name="organizations_factions">
+      <path_glob>**/organizations_factions*.md</path_glob>
+      <type>faction_profile</type>
+    </domain>
+    <domain name="politics_governance">
+      <path_glob>**/politics_governance.md</path_glob>
+      <type>political_content</type>
+    </domain>
+    <domain name="magic_supernatural">
+      <path_glob>**/magic_supernatural*.md</path_glob>
+      <type>magic_system</type>
+    </domain>
+    <domain name="religion_mythology">
+      <path_glob>**/religion_mythology*.md</path_glob>
+      <type>religious_content</type>
+    </domain>
+    <domain name="economy_trade_part2">
+      <path_glob>**/economy_trade_part2.md</path_glob>
+      <type>economic_content</type>
+    </domain>
+    <domain name="cultures_civilizations">
+      <path_glob>**/cultures_civilizations*.md</path_glob>
+      <type>cultural_content</type>
+    </domain>
+    <domain name="languages">
+      <path_glob>**/languages*.md</path_glob>
+      <type>cultural_content</type>
+    </domain>
+    <domain name="fighting_pits_detailed">
+      <path_glob>**/fighting_pits_detailed.md</path_glob>
+      <type>game_mechanics</type>
+    </domain>
+    <domain name="pit_items">
+      <path_glob>**/pit_items.md</path_glob>
+      <type>game_items</type>
+    </domain>
+    <domain name="technology_science">
+      <path_glob>**/technology_science.md</path_glob>
+      <type>technological_content</type>
+    </domain>
+    <domain name="notable_locations_part1">
+      <path_glob>**/notable_locations_part1.md</path_glob>
+      <type>location_profile</type>
+    </domain>
+    <domain name="notable_locations_part2">
+      <path_glob>**/notable_locations_part2.md</path_glob>
+      <type>location_profile</type>
+    </domain>
+  </domains>
+
+  <!-- ==============================================================================
+       EMBEDDING MODEL CONFIGURATION
+       ============================================================================== -->
+  <embedding>
+    <model>Snowflake/snowflake-arctic-embed-l</model>
+    <normalize_embeddings>true</normalize_embeddings>
+    <batch_size>128</batch_size>
+    <precision>fp16</precision>
+    <max_length>512</max_length>
+    <pooling>cls</pooling>
+    <query_prefix>query: </query_prefix>
+    <passage_prefix>passage: </passage_prefix>
+  </embedding>
+
+  <!-- ==============================================================================
+       FAISS INDEX CONFIGURATION
+       ============================================================================== -->
+  <index>
+    <ann>
+      <type>faiss_hnsw</type>
+      <vector_dim>1024</vector_dim>
+      <hnsw>
+        <M>32</M>
+        <efConstruction>200</efConstruction>
+        <efSearch>128</efSearch>
+      </hnsw>
+    </ann>
+  </index>
+
+  <!-- ==============================================================================
+       SEARCH PARAMETERS
+       ============================================================================== -->
+  <search>
+    <topk>
+      <ann>150</ann>
+      <rerank>12</rerank>
+    </topk>
+  </search>
+
+  <!-- ==============================================================================
+       RERANKER CONFIGURATION
+       ============================================================================== -->
+  <reranker>
+    <enabled>true</enabled>
+    <model>BAAI/bge-reranker-v2-m3</model>
+    <cache_enabled>true</cache_enabled>
+    <cache_path>storage/store/reranking_cache.db</cache_path>
+    <precision>fp16</precision>
+  </reranker>
+
+  <!-- ==============================================================================
+       API SERVER CONFIGURATION
+       ============================================================================== -->
+  <api>
+    <host>0.0.0.0</host>
+    <port>8000</port>
+    <workers>1</workers>
+    <retrieval>
+      <default_k>5</default_k>
+      <max_k>10</max_k>
+      <timeout_ms>1000</timeout_ms>
+    </retrieval>
+  </api>
+
+  <!-- ==============================================================================
+       SCORING WEIGHTS (from retrieval contract)
+       ============================================================================== -->
+  <scoring>
+    <semantic>0.60</semantic>
+    <entity>0.25</entity>
+    <type>0.10</type>
+    <canon>0.05</canon>
+    <graph>0.08</graph>
+  </scoring>
+
+  <!-- ==============================================================================
+       OUTPUT CONFIGURATION
+       ============================================================================== -->
+  <output>
+    <jsonl_path>storage/store/meta.jsonl</jsonl_path>
+    <rejects_log>storage/store/rejects.log</rejects_log>
+    <export_batch_size>100</export_batch_size>
+  </output>
+
+  <!-- ==============================================================================
+       LOGGING CONFIGURATION
+       ============================================================================== -->
+  <logging>
+    <level>INFO</level>
+    <format>%(asctime)s - %(name)s - %(levelname)s - %(message)s</format>
+  </logging>
+
+  <!-- ==============================================================================
+       GENERATOR CONFIGURATION
+       ============================================================================== -->
+  <generator>
+    <answerer_temp>0.2</answerer_temp>
+    <answerer_top_p>0.9</answerer_top_p>
+    <answerer_max_tokens>300</answerer_max_tokens>
+    <answerer_mode_default>text</answerer_mode_default>
+    <answerer_faithfulness_check>true</answerer_faithfulness_check>
+    <npc_temp>0.5</npc_temp>
+    <npc_top_p>0.9</npc_top_p>
+    <npc_max_tokens>160</npc_max_tokens>
+    <npc_persona_tokens>true</npc_persona_tokens>
+    <npc_block_ooc>true</npc_block_ooc>
+    <no_canon_sentinel>NO_CANON_FOUND</no_canon_sentinel>
+    <enable_logging>true</enable_logging>
+    <log_level>INFO</log_level>
+    <cache_prompts>true</cache_prompts>
+  </generator>
+
+  <!-- ==============================================================================
+       HYBRID SEARCH CONFIGURATION
+       ============================================================================== -->
+  <hybrid>
+    <enabled>true</enabled>
+    <k_dense>150</k_dense>
+    <k_sparse>150</k_sparse>
+    <fuse>rrf</fuse>
+    <mmr>
+      <enabled>true</enabled>
+      <lambda>0.5</lambda>
+      <topk>60</topk>
+    </mmr>
+  </hybrid>
+
+  <!-- ==============================================================================
+       COLLECTION ROUTING CONFIGURATION
+       ============================================================================== -->
+  <collections>
+    <collection name="global" />
+    <collection name="houses" />
+    <collection name="factions" />
+    <collection name="eras" />
+    <collection name="bestiary" />
+    <collection name="geography" />
+    <collection name="magic" />
+    <collection name="economy" />
+  </collections>
+
+  <!-- ==============================================================================
+       OPERATIONS & CDC CONFIGURATION
+       ============================================================================== -->
+  <ops>
+    <cdc>
+      <enabled>true</enabled>
+      <hash_fields>
+        <field>text</field>
+        <field>title</field>
+        <field>section_path</field>
+      </hash_fields>
+    </cdc>
+    <embedding_cache>
+      <enabled>true</enabled>
+      <backend>sqlite</backend>
+    </embedding_cache>
+  </ops>
+
+  <!-- ==============================================================================
+       QUALITY GATES
+       ============================================================================== -->
+  <quality>
+    <entity_coverage_min>0.60</entity_coverage_min>
+    <reject_rate_max>0.05</reject_rate_max>
+    <min_chunk_sentences>2</min_chunk_sentences>
+    <max_file_size_mb>10</max_file_size_mb>
+  </quality>
+</rag_config>

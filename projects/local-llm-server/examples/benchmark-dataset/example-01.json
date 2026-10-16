@@ -1,0 +1,35 @@
+{
+  "input": {
+    "context": {
+      "situation": "Two traders argue over a missing crate of salt.",
+      "character": {
+        "name": "Marta",
+        "location": "the market square",
+        "personality": {
+          "traits": [
+            "fair",
+            "practical"
+          ],
+          "values": [
+            "honesty",
+            "community"
+          ]
+        },
+        "background": "A retired caravan guard who now keeps order at the market."
+      },
+      "environment": {
+        "name": "Town market",
+        "description": "A busy square with stalls and carts.",
+        "conditions": {
+          "lighting": "midday",
+          "crowd": "crowded",
+          "danger": "low"
+        }
+      }
+    },
+    "intent": "Who should Marta side with, and why?"
+  },
+  "output": {
+    "response": "(example only: the benchmark compares generation speed, not answer quality)"
+  }
+}

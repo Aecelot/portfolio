@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<entities>
+  <entity id="character_arthur" name="Arthur" type="character"><aliases>arthur, king arthur, the king</aliases></entity>
+  <entity id="character_merlin" name="Merlin" type="character"><aliases>merlin, the wizard</aliases></entity>
+  <entity id="character_guinevere" name="Guinevere" type="character"><aliases>guinevere, queen guinevere, the queen</aliases></entity>
+  <entity id="character_lancelot" name="Lancelot" type="character"><aliases>lancelot, sir lancelot</aliases></entity>
+  <entity id="character_uther" name="Uther" type="character"><aliases>uther, uther pendragon</aliases></entity>
+  <entity id="character_vortigern" name="Vortigern" type="character"><aliases>vortigern, the usurper</aliases></entity>
+  <entity id="character_elaine" name="Elaine" type="character"><aliases>elaine, the fair elaine</aliases></entity>
+  <entity id="item_excalibur" name="Excalibur" type="item"><aliases>excalibur, the sword</aliases></entity>
+  <entity id="object_round_table" name="Round Table" type="object"><aliases>round table, the round table</aliases></entity>
+</entities>

@@ -1,0 +1,115 @@
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache files
+# Primary cache location: src/__pycache__/ (preferred)
+# Fallback: __pycache__/ (root) - should be cleaned up
+src/__pycache__/
+src/**/*.pyc
+src/*/__pycache__/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing (cache files should be in src/ not root)
+src/.pytest_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Project specific - large data files
+store/faiss.index
+store/vectors.npy
+store/*.pkl
+store/*.h5
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+debug.log
+error.log
+
+# Configuration backups
+config/*.bak
+config/*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# dotenv
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+# Generated indexes and evaluation output (rebuild with `make build`)
+storage/

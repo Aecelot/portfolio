@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Lore RAG KPI Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Lore RAG KPI Dashboard</h1>
+            <p>Real-time monitoring of retrieval and generation performance metrics</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">🏰 Main Hub</a>
+            <a href="/chat">💬 Chat Interface</a>
+            <a href="/api/health">❤️ Health Check</a>
+            <a href="#" id="dashboardLink">📊 Dashboard</a>
+        </div>
+
+        <div class="controls">
+            <div class="refresh-section">
+                <button id="refreshButton" class="refresh-button">🔄 Refresh Data</button>
+                <div class="last-updated">
+                    Last updated: <span id="lastUpdated">Never</span>
+                </div>
+            </div>
+            <div class="export-section">
+                <button id="exportJsonButton" class="export-button">📄 Export JSON</button>
+                <button id="exportCsvButton" class="export-button">📊 Export CSV</button>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <div>Loading KPI data...</div>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <!-- KPI Cards Section -->
+            <div class="kpi-grid" id="kpiCards">
+                <!-- KPI cards will be populated dynamically -->
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-section">
+                <h3>🚨 System Alerts</h3>
+                <div id="alertsContainer">
+                    <div class="alert info">
+                        <strong>System Status:</strong> Monitoring active, waiting for data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>📈 Query Latency Trends</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="latencyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>🎯 Accuracy Metrics</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="accuracyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>💾 Resource Usage</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="resourceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>⚡ Performance Overview</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Metrics Section -->
+            <div class="details-section">
+                <div class="details-panel">
+                    <h3>🔍 FAISS Index Metrics</h3>
+                    <div id="faissMetrics">
+                        <!-- FAISS metrics will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="details-panel">
+                    <h3>🚀 System Performance</h3>
+                    <div id="systemMetrics">
+                        <!-- System metrics will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentData = null;
+        let historicalData = [];
+        let charts = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            loadKPIData();
+        });
+
+        function initializeEventListeners() {
+            document.getElementById('refreshButton').addEventListener('click', loadKPIData);
+            document.getElementById('exportJsonButton').addEventListener('click', exportJSON);
+            document.getElementById('exportCsvButton').addEventListener('click', exportCSV);
+        }
+
+        async function loadKPIData() {
+            const refreshButton = document.getElementById('refreshButton');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const dashboardContent = document.getElementById('dashboardContent');
+
+            try {
+                refreshButton.disabled = true;
+                refreshButton.textContent = '🔄 Loading...';
+                loadingIndicator.style.display = 'block';
+                dashboardContent.style.display = 'none';
+
+                // Load current KPI data
+                const currentResponse = await fetch('/api/kpi/current');
+                if (!currentResponse.ok) {
+                    throw new Error(`HTTP error! status: ${currentResponse.status}`);
+                }
+                currentData = await currentResponse.json();
+
+                // Load historical data
+                try {
+                    const historyResponse = await fetch('/api/kpi/history');
+                    if (historyResponse.ok) {
+                        historicalData = await historyResponse.json();
+                    }
+                } catch (error) {
+                    console.warn('Could not load historical data:', error);
+                    historicalData = [];
+                }
+
+                // Update UI
+                updateKPICards(currentData);
+                updateAlerts(currentData);
+                updateDetailedMetrics(currentData);
+                updateCharts();
+
+                // Update timestamp
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+
+                loadingIndicator.style.display = 'none';
+                dashboardContent.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading KPI data:', error);
+                showError('Failed to load KPI data: ' + error.message);
+            } finally {
+                refreshButton.disabled = false;
+                refreshButton.textContent = '🔄 Refresh Data';
+            }
+        }
+
+        function updateKPICards(data) {
+            const kpiCardsContainer = document.getElementById('kpiCards');
+
+            const kpiDefinitions = [
+                {
+                    title: 'Query Latency',
+                    value: data.accuracy_metrics?.query_latency_ms || 0,
+                    unit: 'ms',
+                    target: 80,
+                    format: 'decimal'
+                },
+                {
+                    title: 'Overlap@10',
+                    value: data.accuracy_metrics?.overlap_at_10 || 0,
+                    unit: '',
+                    target: 0.90,
+                    format: 'percentage'
+                },
+                {
+                    title: 'Recall@5',
+                    value: data.accuracy_metrics?.recall_at_5 || 0,
+                    unit: '',
+                    target: 0.80,
+                    format: 'percentage'
+                },
+                {
+                    title: 'Memory Usage',
+                    value: data.resource_metrics?.memory_usage_mb || 0,
+                    unit: 'MB',
+                    target: 2048,
+                    format: 'decimal'
+                },
+                {
+                    title: 'Index Size',
+                    value: data.resource_metrics?.index_size_mb || 0,
+                    unit: 'MB',
+                    target: 100,
+                    format: 'decimal'
+                },
+                {
+                    title: 'Build Time',
+                    value: data.resource_metrics?.build_time_seconds || 0,
+                    unit: 's',
+                    target: 30,
+                    format: 'decimal'
+                }
+            ];
+
+            kpiCardsContainer.innerHTML = kpiDefinitions.map(kpi => {
+                const status = getKPIStatus(kpi.value, kpi.target, kpi.format);
+                const formattedValue = formatKPIValue(kpi.value, kpi.format);
+                const trend = calculateTrend(kpi.title, kpi.value);
+
+                return `
+                    <div class="kpi-card">
+                        <h3>${kpi.title}</h3>
+                        <div class="kpi-value">
+                            <span class="value">${formattedValue}</span>
+                            <span class="unit">${kpi.unit}</span>
+                        </div>
+                        <div class="kpi-status ${status.class}">${status.text}</div>
+                        <div class="kpi-trend ${trend.class}">${trend.text}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getKPIStatus(value, target, format) {
+            if (format === 'percentage') {
+                const ratio = value / target;
+                if (ratio >= 1.0) return { class: 'excellent', text: '🟢 Excellent' };
+                if (ratio >= 0.9) return { class: 'good', text: '🟡 Good' };
+                if (ratio >= 0.8) return { class: 'warning', text: '🟠 Warning' };
+                return { class: 'critical', text: '🔴 Critical' };
+            } else {
+                // For latency, memory, etc. - lower is better
+                const ratio = value / target;
+                if (ratio <= 0.5) return { class: 'excellent', text: '🟢 Excellent' };
+                if (ratio <= 0.8) return { class: 'good', text: '🟡 Good' };
+                if (ratio <= 1.0) return { class: 'warning', text: '🟠 Warning' };
+                return { class: 'critical', text: '🔴 Critical' };
+            }
+        }
+
+        function formatKPIValue(value, format) {
+            if (format === 'percentage') {
+                return (value * 100).toFixed(1) + '%';
+            } else if (format === 'decimal') {
+                return value.toFixed(1);
+            }
+            return value.toString();
+        }
+
+        function calculateTrend(kpiName, currentValue) {
+            // Placeholder trend calculation
+            // In a real implementation, this would compare with historical data
+            return { class: 'trend-stable', text: '➡️ Stable' };
+        }
+
+        function updateAlerts(data) {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alerts = [];
+
+            // Check for critical thresholds
+            if (data.accuracy_metrics?.query_latency_ms > 200) {
+                alerts.push({
+                    type: 'critical',
+                    message: `Critical: Query latency (${data.accuracy_metrics.query_latency_ms.toFixed(1)}ms) exceeds 200ms threshold`
+                });
+            }
+
+            if (data.accuracy_metrics?.overlap_at_10 < 0.80) {
+                alerts.push({
+                    type: 'critical',
+                    message: `Critical: Overlap@10 (${(data.accuracy_metrics.overlap_at_10 * 100).toFixed(1)}%) below 80% threshold`
+                });
+            }
+
+            if (data.resource_metrics?.memory_usage_mb > 2048) {
+                alerts.push({
+                    type: 'warning',
+                    message: `Warning: Memory usage (${data.resource_metrics.memory_usage_mb.toFixed(1)}MB) exceeds target`
+                });
+            }
+
+            if (alerts.length === 0) {
+                alerts.push({
+                    type: 'info',
+                    message: 'All KPIs within acceptable ranges'
+                });
+            }
+
+            alertsContainer.innerHTML = alerts.map(alert => `
+                <div class="alert ${alert.type}">
+                    <strong>${alert.type.charAt(0).toUpperCase() + alert.type.slice(1)}:</strong> ${alert.message}
+                </div>
+            `).join('');
+        }
+
+        function updateDetailedMetrics(data) {
+            // Update FAISS metrics
+            const faissMetrics = document.getElementById('faissMetrics');
+            faissMetrics.innerHTML = `
+                <div class="metric-row">
+                    <span class="metric-label">Overlap@10</span>
+                    <span class="metric-value">${((data.accuracy_metrics?.overlap_at_10 || 0) * 100).toFixed(2)}%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Recall@5</span>
+                    <span class="metric-value">${((data.accuracy_metrics?.recall_at_5 || 0) * 100).toFixed(2)}%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">MRR Score</span>
+                    <span class="metric-value">${(data.accuracy_metrics?.mean_reciprocal_rank || 0).toFixed(3)}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Query Latency</span>
+                    <span class="metric-value">${(data.accuracy_metrics?.query_latency_ms || 0).toFixed(1)}ms</span>
+                </div>
+            `;
+
+            // Update system metrics
+            const systemMetrics = document.getElementById('systemMetrics');
+            systemMetrics.innerHTML = `
+                <div class="metric-row">
+                    <span class="metric-label">Memory Usage</span>
+                    <span class="metric-value">${(data.resource_metrics?.memory_usage_mb || 0).toFixed(1)}MB</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Index Size</span>
+                    <span class="metric-value">${(data.resource_metrics?.index_size_mb || 0).toFixed(1)}MB</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Build Time</span>
+                    <span class="metric-value">${(data.resource_metrics?.build_time_seconds || 0).toFixed(1)}s</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Throughput</span>
+                    <span class="metric-value">${(data.performance_metrics?.throughput_qps || 0).toFixed(1)} QPS</span>
+                </div>
+            `;
+        }
+
+        function updateCharts() {
+            // For now, create sample charts - these will be updated with real data
+            createLatencyChart();
+            createAccuracyChart();
+            createResourceChart();
+            createPerformanceChart();
+        }
+
+        function createLatencyChart() {
+            const ctx = document.getElementById('latencyChart').getContext('2d');
+            if (charts.latency) {
+                charts.latency.destroy();
+            }
+
+            charts.latency = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1h ago', '45m', '30m', '15m', 'Now'],
+                    datasets: [{
+                        label: 'Query Latency (ms)',
+                        data: [75, 82, 78, 85, currentData?.accuracy_metrics?.query_latency_ms || 80],
+                        borderColor: '#daa520',
+                        backgroundColor: 'rgba(218, 165, 32, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#deb887' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#a0522d' } },
+                        y: { ticks: { color: '#a0522d' } }
+                    }
+                }
+            });
+        }
+
+        function createAccuracyChart() {
+            const ctx = document.getElementById('accuracyChart').getContext('2d');
+            if (charts.accuracy) {
+                charts.accuracy.destroy();
+            }
+
+            charts.accuracy = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Overlap@10', 'Recall@5', 'MRR'],
+                    datasets: [{
+                        label: 'Accuracy Metrics',
+                        data: [
+                            (currentData?.accuracy_metrics?.overlap_at_10 || 0) * 100,
+                            (currentData?.accuracy_metrics?.recall_at_5 || 0) * 100,
+                            (currentData?.accuracy_metrics?.mean_reciprocal_rank || 0) * 100
+                        ],
+                        backgroundColor: ['rgba(218, 165, 32, 0.6)', 'rgba(160, 82, 45, 0.6)', 'rgba(139, 69, 19, 0.6)'],
+                        borderColor: ['#daa520', '#a0522d', '#8b4513'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#deb887' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#a0522d' } },
+                        y: {
+                            ticks: { color: '#a0522d' },
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function createResourceChart() {
+            const ctx = document.getElementById('resourceChart').getContext('2d');
+            if (charts.resource) {
+                charts.resource.destroy();
+            }
+
+            charts.resource = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Memory Used', 'Memory Available'],
+                    datasets: [{
+                        data: [
+                            currentData?.resource_metrics?.memory_usage_mb || 0,
+                            Math.max(0, 2048 - (currentData?.resource_metrics?.memory_usage_mb || 0))
+                        ],
+                        backgroundColor: ['rgba(160, 82, 45, 0.6)', 'rgba(75, 54, 33, 0.3)'],
+                        borderColor: ['#a0522d', '#4b3621'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#deb887' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            if (charts.performance) {
+                charts.performance.destroy();
+            }
+
+            charts.performance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Query Speed', 'Accuracy', 'Memory Efficiency', 'Cache Hit Rate', 'Throughput'],
+                    datasets: [{
+                        label: 'Current Performance',
+                        data: [
+                            Math.max(0, 100 - (currentData?.accuracy_metrics?.query_latency_ms || 0)),
+                            (currentData?.accuracy_metrics?.overlap_at_10 || 0) * 100,
+                            Math.max(0, 100 - ((currentData?.resource_metrics?.memory_usage_mb || 0) / 2048 * 100)),
+                            75, // Placeholder for cache hit rate
+                            Math.min(100, (currentData?.performance_metrics?.throughput_qps || 0) * 10)
+                        ],
+                        backgroundColor: 'rgba(218, 165, 32, 0.2)',
+                        borderColor: '#daa520',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#daa520'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#deb887' }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(139, 69, 19, 0.3)' },
+                            grid: { color: 'rgba(139, 69, 19, 0.3)' },
+                            pointLabels: { color: '#a0522d' },
+                            ticks: { color: '#a0522d', backdropColor: 'transparent' },
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportJSON() {
+            if (!currentData) {
+                alert('No data available to export');
+                return;
+            }
+
+            const dataStr = JSON.stringify(currentData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `rag-kpi-report-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            if (!currentData) {
+                alert('No data available to export');
+                return;
+            }
+
+            const csvRows = [];
+            csvRows.push(['Metric', 'Value', 'Unit', 'Timestamp']);
+
+            // Add accuracy metrics
+            if (currentData.accuracy_metrics) {
+                const metrics = currentData.accuracy_metrics;
+                csvRows.push(['Query Latency', metrics.query_latency_ms || 0, 'ms', new Date().toISOString()]);
+                csvRows.push(['Overlap@10', (metrics.overlap_at_10 || 0) * 100, '%', new Date().toISOString()]);
+                csvRows.push(['Recall@5', (metrics.recall_at_5 || 0) * 100, '%', new Date().toISOString()]);
+                csvRows.push(['MRR', metrics.mean_reciprocal_rank || 0, '', new Date().toISOString()]);
+            }
+
+            // Add resource metrics
+            if (currentData.resource_metrics) {
+                const metrics = currentData.resource_metrics;
+                csvRows.push(['Memory Usage', metrics.memory_usage_mb || 0, 'MB', new Date().toISOString()]);
+                csvRows.push(['Index Size', metrics.index_size_mb || 0, 'MB', new Date().toISOString()]);
+                csvRows.push(['Build Time', metrics.build_time_seconds || 0, 's', new Date().toISOString()]);
+            }
+
+            const csvContent = csvRows.map(row => row.join(',')).join('\n');
+            const dataBlob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `rag-kpi-report-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            const alertsContainer = document.getElementById('alertsContainer');
+            alertsContainer.innerHTML = `
+                <div class="alert critical">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+        }
+
+        // Auto-refresh functionality (manual trigger only as per requirements)
+        function setupAutoRefresh() {
+            // Manual refresh only - no automatic refresh per requirements
+            console.log('Dashboard ready - manual refresh mode active');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', setupAutoRefresh);
+    </script>
+</body>
+</html>

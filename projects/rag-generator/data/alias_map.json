@@ -1,0 +1,11 @@
+{
+  "character_arthur": ["arthur", "king arthur", "the king"],
+  "character_merlin": ["merlin", "the wizard"],
+  "character_guinevere": ["guinevere", "queen guinevere", "the queen"],
+  "character_lancelot": ["lancelot", "sir lancelot"],
+  "character_uther": ["uther", "uther pendragon"],
+  "character_vortigern": ["vortigern", "the usurper"],
+  "character_elaine": ["elaine", "the fair elaine"],
+  "item_excalibur": ["excalibur", "the sword"],
+  "object_round_table": ["round table", "the round table"]
+}

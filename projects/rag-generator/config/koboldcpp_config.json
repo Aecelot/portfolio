@@ -1,0 +1,31 @@
+{
+  "llm_mode": "auto",
+  "configurations": {
+    "local": {
+      "description": "Local KoboldCpp instance (fastest)",
+      "api_server_url": "http://localhost:8080",
+      "koboldcpp_url": "http://localhost:5001",
+      "enabled": true
+    },
+    "network": {
+      "description": "Network KoboldCpp instance (accessible from other devices)",
+      "api_server_url": "http://localhost:8080",
+      "koboldcpp_url": "http://192.168.178.26:5001",
+      "enabled": true
+    }
+  },
+  "performance": {
+    "max_tokens": 40,
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "timeout": 15,
+    "enable_caching": true,
+    "cache_size": 100
+  },
+  "features": {
+    "response_streaming": false,
+    "concurrent_requests": true,
+    "health_monitoring": true,
+    "auto_fallback": true
+  }
+}

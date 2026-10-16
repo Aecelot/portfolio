@@ -1,0 +1,107 @@
+# Build Directories
+build/
+cmake-build-*/
+out/
+x64/
+x86/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vcxproj.user
+*.vcxproj
+*.vcxproj.filters
+*.sln
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_deps/
+
+# Executables and Libraries
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.out
+*.app
+
+# Object Files
+*.o
+*.obj
+*.lo
+*.slo
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Process Files
+*.pid
+
+# Model Files (GGUF files are typically large)
+*.gguf
+models/*.gguf
+models/blobs/
+models/manifests/
+
+# vcpkg
+vcpkg_installed/
+.vcpkg-root
+buildtrees/
+downloads/
+packages/
+
+# Environment and Config Files
+config/env.local
+*.local
+.env
+.env.local
+
+# Performance Data
+performance/*.json
+performance/*.csv
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Archives
+*.zip
+*.tar.gz
+*.7z
+*.rar

@@ -1,0 +1,35 @@
+{
+  "input": {
+    "context": {
+      "situation": "A stranger asks to buy the well's water for a festival.",
+      "character": {
+        "name": "Ilse",
+        "location": "the village well",
+        "personality": {
+          "traits": [
+            "generous",
+            "wary"
+          ],
+          "values": [
+            "fairness",
+            "tradition"
+          ]
+        },
+        "background": "A village elder who looks after the shared well."
+      },
+      "environment": {
+        "name": "Village well",
+        "description": "A quiet corner with a stone well and a bench.",
+        "conditions": {
+          "lighting": "evening",
+          "crowd": "quiet",
+          "danger": "low"
+        }
+      }
+    },
+    "intent": "How should Ilse answer the stranger?"
+  },
+  "output": {
+    "response": "(example only: the benchmark compares generation speed, not answer quality)"
+  }
+}

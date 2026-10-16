@@ -1,0 +1,35 @@
+{
+  "input": {
+    "context": {
+      "situation": "A ship arrives with no crew on deck.",
+      "character": {
+        "name": "Joren",
+        "location": "the harbour office",
+        "personality": {
+          "traits": [
+            "cautious",
+            "methodical"
+          ],
+          "values": [
+            "safety",
+            "duty"
+          ]
+        },
+        "background": "A harbour master with thirty years on the docks."
+      },
+      "environment": {
+        "name": "Harbour",
+        "description": "Grey water, creaking ropes and gulls.",
+        "conditions": {
+          "lighting": "dawn",
+          "crowd": "sparse",
+          "danger": "medium"
+        }
+      }
+    },
+    "intent": "What should Joren do before anyone boards?"
+  },
+  "output": {
+    "response": "(example only: the benchmark compares generation speed, not answer quality)"
+  }
+}

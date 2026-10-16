@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<evaluation>
+  <name>Lore RAG Retrieval Quality Assessment</name>
+  <version>1.0</version>
+  <description>Comprehensive evaluation of RAG retrieval performance using curated gold queries</description>
+  <gold_queries_path>data/gold_queries.json</gold_queries_path>
+  <retriever_endpoint>/retrieve</retriever_endpoint>
+  <test_environment>development</test_environment>
+
+  <metrics>
+    <recall_at_k>
+      <k value="1">
+        <target>&gt;= 0.70</target>
+        <description>Did any gold passage appear in top 1 result?</description>
+      </k>
+      <k value="3">
+        <target>&gt;= 0.75</target>
+        <description>Did any gold passage appear in top 3 results?</description>
+      </k>
+      <k value="5">
+        <target>&gt;= 0.80</target>
+        <description>Did any gold passage appear in top 5 results?</description>
+      </k>
+    </recall_at_k>
+
+    <mean_reciprocal_rank_at_5>
+      <target>&gt;= 0.65</target>
+      <description>Rank of first correct result (1/rank, averaged)</description>
+      <formula>MRR = (1/|Q|) * Σ(1/rank_i) for first relevant result</formula>
+    </mean_reciprocal_rank_at_5>
+
+    <entity_hit_rate>
+      <target>&gt;= 0.85</target>
+      <description>Percentage of queries with any shared entity in top-5 results</description>
+      <evaluation>Compare entities in gold queries vs retrieved sections</evaluation>
+    </entity_hit_rate>
+
+    <domain_match_rate>
+      <target>&gt;= 0.85</target>
+      <description>Top-1 domain matches gold domain</description>
+      <evaluation>Check if retrieved section domain matches query domain</evaluation>
+    </domain_match_rate>
+
+    <latency_metrics>
+      <p50_target_ms>80</p50_target_ms>
+      <p95_target_ms>150</p95_target_ms>
+      <description>End-to-end /retrieve response time</description>
+      <breakdown_tracking>
+        <component>embedding_time</component>
+        <component>ann_search_time</component>
+        <component>reranking_time</component>
+        <component>graph_boost_time</component>
+      </breakdown_tracking>
+    </latency_metrics>
+
+    <context_budget_adherence>
+      <target>100%</target>
+      <description>Percentage of responses within token budget</description>
+      <max_tokens>4096</max_tokens>
+      <evaluation>Ensure trimming doesn't cut essential facts</evaluation>
+    </context_budget_adherence>
+
+    <reranker_gain>
+      <delta_mrr_target>&gt;= +0.05</delta_mrr_target>
+      <delta_recall_at_5_target>&gt;= +0.02</delta_recall_at_5_target>
+      <description>Improvement vs ANN-only baseline</description>
+      <comparison>With reranker vs without reranker</comparison>
+    </reranker_gain>
+
+    <graph_boost_gain>
+      <delta_recall_at_5_target>&gt;= +0.02</delta_recall_at_5_target>
+      <description>Improvement when graph boost is enabled</description>
+      <comparison>With 1-hop graph vs without graph</comparison>
+    </graph_boost_gain>
+  </metrics>
+
+  <execution>
+    <batch_size>10</batch_size>
+    <max_concurrent_requests>5</max_concurrent_requests>
+    <timeout_seconds>30</timeout_seconds>
+    <retry_attempts>3</retry_attempts>
+    <delay_between_requests_ms>100</delay_between_requests_ms>
+
+    <output>
+      <results_file>evaluation_results.json</results_file>
+      <detailed_report>evaluation_report.md</detailed_report>
+      <plots_directory>evaluation_plots/</plots_directory>
+      <include_confusion_matrices>true</include_confusion_matrices>
+      <include_latency_distributions>true</include_latency_distributions>
+    </output>
+
+    <logging>
+      <level>INFO</level>
+      <log_file>evaluation.log</log_file>
+      <track_failures>true</track_failures>
+    </logging>
+  </execution>
+
+  <domain_targets>
+    <bestiary>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.85</domain_match_rate>
+    </bestiary>
+    <world_overview>
+      <recall_at_5>0.85</recall_at_5>
+      <domain_match_rate>0.90</domain_match_rate>
+      <entity_hit_rate>0.90</entity_hit_rate>
+    </world_overview>
+    <geography>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.90</domain_match_rate>
+    </geography>
+    <history>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.85</domain_match_rate>
+    </history>
+    <important_characters>
+      <recall_at_5>0.85</recall_at_5>
+      <entity_hit_rate>0.90</entity_hit_rate>
+      <domain_match_rate>0.90</domain_match_rate>
+    </important_characters>
+    <character_creation_guide>
+      <recall_at_5>0.80</recall_at_5>
+      <domain_match_rate>0.90</domain_match_rate>
+    </character_creation_guide>
+    <character-needs-system>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.85</domain_match_rate>
+    </character-needs-system>
+    <side_characters_3>
+      <recall_at_5>0.85</recall_at_5>
+      <entity_hit_rate>0.90</entity_hit_rate>
+      <domain_match_rate>0.90</domain_match_rate>
+    </side_characters_3>
+    <organizations_factions>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.88</entity_hit_rate>
+      <domain_match_rate>0.85</domain_match_rate>
+    </organizations_factions>
+    <politics_governance>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.85</domain_match_rate>
+    </politics_governance>
+    <magic_supernatural>
+      <recall_at_5>0.75</recall_at_5>
+      <domain_match_rate>0.80</domain_match_rate>
+      <entity_hit_rate>0.80</entity_hit_rate>
+    </magic_supernatural>
+    <religion_mythology>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.85</domain_match_rate>
+    </religion_mythology>
+    <economy_trade_part2>
+      <recall_at_5>0.75</recall_at_5>
+      <domain_match_rate>0.85</domain_match_rate>
+    </economy_trade_part2>
+    <cultures_civilizations>
+      <recall_at_5>0.75</recall_at_5>
+      <entity_hit_rate>0.82</entity_hit_rate>
+      <domain_match_rate>0.80</domain_match_rate>
+    </cultures_civilizations>
+    <languages>
+      <recall_at_5>0.75</recall_at_5>
+      <entity_hit_rate>0.80</entity_hit_rate>
+      <domain_match_rate>0.80</domain_match_rate>
+    </languages>
+    <fighting_pits_detailed>
+      <recall_at_5>0.80</recall_at_5>
+      <domain_match_rate>0.85</domain_match_rate>
+    </fighting_pits_detailed>
+    <pit_items>
+      <recall_at_5>0.75</recall_at_5>
+      <domain_match_rate>0.85</domain_match_rate>
+    </pit_items>
+    <technology_science>
+      <recall_at_5>0.75</recall_at_5>
+      <domain_match_rate>0.80</domain_match_rate>
+    </technology_science>
+    <notable_locations_part1>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.90</domain_match_rate>
+    </notable_locations_part1>
+    <notable_locations_part2>
+      <recall_at_5>0.80</recall_at_5>
+      <entity_hit_rate>0.85</entity_hit_rate>
+      <domain_match_rate>0.90</domain_match_rate>
+    </notable_locations_part2>
+  </domain_targets>
+
+  <alert_thresholds>
+    <critical_failure_rate>0.10</critical_failure_rate>
+    <performance_regression>-0.05</performance_regression>
+    <latency_spike>2.0</latency_spike>
+  </alert_thresholds>
+
+  <!-- FAISS-specific KPI targets -->
+  <faiss_kpis>
+    <accuracy_targets>
+      <overlap_at_10>&gt;= 0.90</overlap_at_10>
+      <recall_at_5>&gt;= 0.80</recall_at_5>
+      <mean_reciprocal_rank>&gt;= 0.70</mean_reciprocal_rank>
+      <description>Accuracy targets for ANN vs exact baseline comparison</description>
+    </accuracy_targets>
+
+    <performance_targets>
+      <query_latency_p95_ms>&lt;= 150</query_latency_p95_ms>
+      <throughput_qps>&gt;= 100</throughput_qps>
+      <description>Performance targets for search operations</description>
+    </performance_targets>
+
+    <resource_targets>
+      <memory_efficiency_mb_per_vector>&lt;= 0.01</memory_efficiency_mb_per_vector>
+      <build_time_per_1000_vectors>&lt;= 5.0</build_time_per_1000_vectors>
+      <description>Resource efficiency targets</description>
+    </resource_targets>
+
+    <integrity_targets>
+      <sha256_hash>enabled</sha256_hash>
+      <dimensionality_check>enabled</dimensionality_check>
+      <normalization_check>enabled</normalization_check>
+      <description>Data integrity verification requirements</description>
+    </integrity_targets>
+  </faiss_kpis>
+
+  <!-- Parameter sweep configurations for FAISS optimization -->
+  <parameter_sweeps>
+    <hnsw_sweep>
+      <M>16,32,64</M>
+      <efSearch>32,64,96,128</efSearch>
+      <efConstruction>200</efConstruction>
+      <description>HNSW parameter combinations to test for optimal recall-latency tradeoff</description>
+    </hnsw_sweep>
+
+    <ivf_sweep>
+      <nlist>sqrt(N),sqrt(N)*2,sqrt(N)*4</nlist>
+      <nprobe>8,16,32,64</nprobe>
+      <description>IVF parameter combinations for clustering-based search optimization</description>
+    </ivf_sweep>
+
+    <evaluation_config>
+      <sample_size>200</sample_size>
+      <random_seed>42</random_seed>
+      <plots_directory>evaluation_plots/</plots_directory>
+      <description>Configuration for parameter sweep evaluation</description>
+    </evaluation_config>
+  </parameter_sweeps>
+
+
+  <instructions><![CDATA[
+HOW TO RUN EVALUATION:
+
+1. SETUP:
+   - Ensure your RAG system is running with /retrieve endpoint active
+   - Verify config/rag.yaml and config/api.yaml are properly configured
+   - Check that data/gold_queries.json exists and is valid
+
+2. BASIC EVALUATION:
+   python -m evaluation.harness --config config/evaluation_config.xml
+
+3. METRIC CALCULATIONS:
+   - Recall@K: For each query, check if any gold_section appears in top-K results
+   - MRR@5: For each query, find rank of first gold_section, compute 1/rank, average
+   - Entity hit-rate: Count queries where retrieved sections share entities with gold query
+   - Domain match: Compare domain metadata between query and top-1 result
+
+4. PERFORMANCE TRACKING:
+   - Use timing decorators on /retrieve endpoint
+   - Track embedding, ANN search, reranking, and graph boost times separately
+   - Monitor token usage vs budget
+
+5. ABLATION STUDIES:
+   - Run with reranker disabled to measure gain
+   - Run with graph boost disabled to measure contribution
+   - Compare results to establish baseline performance
+
+6. CONTINUOUS MONITORING:
+   - Set up daily evaluation runs on a subset of queries
+   - Track performance trends over time
+   - Alert on significant regressions
+]]></instructions>
+
+  <expected_outputs>
+    <summary_metrics>
+      <recall_at_1>0.72</recall_at_1>
+      <recall_at_3>0.78</recall_at_3>
+      <recall_at_5>0.82</recall_at_5>
+      <mrr_at_5>0.68</mrr_at_5>
+      <entity_hit_rate>0.87</entity_hit_rate>
+      <domain_match_rate>0.88</domain_match_rate>
+      <latency_p50_ms>45</latency_p50_ms>
+      <latency_p95_ms>120</latency_p95_ms>
+      <reranker_gain_mrr>0.08</reranker_gain_mrr>
+      <graph_boost_gain>0.03</graph_boost_gain>
+    </summary_metrics>
+    <failure_analysis><![CDATA[
+- Queries with zero recall (critical failures)
+- Domain mismatches (classifier issues)
+- High-latency queries (performance problems)
+- Entity linking failures (alias resolution issues)
+]]></failure_analysis>
+  </expected_outputs>
+</evaluation>

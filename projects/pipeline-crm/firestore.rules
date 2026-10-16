@@ -1,0 +1,162 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user created the document
+    function isCreator() {
+      return isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Leads collection - user can only access their own leads
+    // TEMPORARILY allowing all authenticated users to read leads for migration
+    match /leads/{leadId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAuthenticated();
+      allow delete: if isCreator();
+    }
+
+    // Notes collection - TEMPORARILY allowing all authenticated users for migration
+    match /notes/{noteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Activities collection - TEMPORARILY allowing all authenticated users for migration
+    match /activities/{activityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated();
+    }
+
+    // Pipelines collection (shared configuration)
+    match /pipelines/{pipelineId} {
+      // All authenticated users can read pipelines
+      allow read: if isAuthenticated();
+
+      // Any authenticated user can create pipelines (for initialization)
+      allow create: if isAuthenticated();
+
+      // Updates allowed for authenticated users (shared config)
+      allow update: if isAuthenticated();
+
+      // Deletion restricted (could add admin check later)
+      allow delete: if isAuthenticated();
+    }
+
+    // Tags collection (shared configuration)
+    match /tags/{tagId} {
+      // All authenticated users can read tags
+      allow read: if isAuthenticated();
+
+      // Any authenticated user can create tags
+      allow create: if isAuthenticated();
+
+      // Any authenticated user can update/delete tags
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Contacts collection - TEMPORARILY allowing all authenticated users for migration
+    match /contacts/{contactId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // LeadContacts junction collection - TEMPORARILY allowing all authenticated users for migration
+    match /leadContacts/{linkId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Config collection (Gmail settings, etc.)
+    match /config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Gmail auth requests - for triggering OAuth flow via Firestore
+    match /gmailAuthRequests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Gmail code exchange - for exchanging OAuth code via Firestore trigger
+    match /gmailCodeExchange/{exchangeId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Email sequences
+    match /sequences/{sequenceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Lead sequence status
+    match /leadSequences/{statusId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAuthenticated();
+    }
+
+    // Test email requests - for sending test emails via Firestore trigger
+    match /testEmailRequests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Contact import requests - for importing Google contacts via Firestore trigger
+    match /contactImportRequests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Newsletter lists
+    match /newsletterLists/{listId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Newsletters (campaigns)
+    match /newsletters/{newsletterId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Newsletter recipients (tracking)
+    match /newsletterRecipients/{recipientId} {
+      allow read: if isAuthenticated();
+      // Only Cloud Functions can write to this collection
+      allow write: if false;
+    }
+
+    // Newsletter send requests - for triggering newsletter send via Firestore trigger
+    match /newsletterSendRequests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Events collection - tracking conferences, showcases, meetups
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Subsidies collection - tracking grants, tax credits, funding
+    match /subsidies/{subsidyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}

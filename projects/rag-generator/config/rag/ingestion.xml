@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ingestion_config>
+  <!-- ==============================================================================
+       CHUNKING PARAMETERS
+       ============================================================================== -->
+  <chunking>
+    <token_target>320</token_target>
+    <token_min>120</token_min>
+    <token_max>450</token_max>
+    <overlap_pct>0.15</overlap_pct>
+  </chunking>
+
+  <!-- ==============================================================================
+       INPUT/OUTPUT PATHS
+       ============================================================================== -->
+  <paths>
+    <input_glob>corpus/**/*.md</input_glob>
+    <output_jsonl>store/meta.jsonl</output_jsonl>
+    <rejects_log>store/rejects.log</rejects_log>
+  </paths>
+
+  <!-- ==============================================================================
+       ENTITY PROCESSING
+       ============================================================================== -->
+  <entity_processing>
+    <alias_map_path>data/alias_map.json</alias_map_path>
+    <entities_xml_path>data/entities.xml</entities_xml_path>
+  </entity_processing>
+
+  <!-- ==============================================================================
+       QUALITY GATES
+       ============================================================================== -->
+  <quality_gates>
+    <entity_coverage_min>0.60</entity_coverage_min>
+    <reject_rate_max>0.05</reject_rate_max>
+  </quality_gates>
+
+  <!-- ==============================================================================
+       DOMAIN MAPPING
+       ============================================================================== -->
+  <domains>
+    <domain name="characters">
+      <path_glob>**/characters/**</path_glob>
+      <type>character_bio</type>
+    </domain>
+    <domain name="locations">
+      <path_glob>**/locations/**</path_glob>
+      <type>location_profile</type>
+    </domain>
+    <domain name="factions">
+      <path_glob>**/organizations_factions/**</path_glob>
+      <type>faction_profile</type>
+    </domain>
+    <domain name="magic">
+      <path_glob>**/magic_supernatural/**</path_glob>
+      <type>magic_system</type>
+    </domain>
+    <domain name="bestiary">
+      <path_glob>**/bestiary*</path_glob>
+      <type>creature_profile</type>
+    </domain>
+    <domain name="history">
+      <path_glob>**/history*</path_glob>
+      <type>historical_overview</type>
+    </domain>
+    <domain name="geography">
+      <path_glob>**/geography*</path_glob>
+      <type>geography_profile</type>
+    </domain>
+    <domain name="politics">
+      <path_glob>**/politics_governance*</path_glob>
+      <type>politics_profile</type>
+    </domain>
+  </domains>
+</ingestion_config>

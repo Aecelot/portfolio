@@ -1,0 +1,116 @@
+# KoboldCpp Model Requirements ⚠️ DOWNLOAD REQUIRED
+# This file specifies the recommended GGUF models for use with kcppctl
+#
+# 🚨 IMPORTANT: You MUST download GGUF model files before using kcppctl!
+# The tool will not function without models. See installation instructions below.
+
+## Recommended Models
+
+### Primary Models (Recommended for RTX 3060 12GB)
+
+#### Mistral 7B Instruct v0.1
+- **Quantization:** Q4_K_M
+- **File Size:** ~4.1 GB
+- **Memory Usage:** ~6 GB VRAM (with appropriate layers offloaded)
+- **Download URL:** https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF
+- **Filename:** mistral-7b-instruct-v0.1.Q4_K_M.gguf
+- **Use Case:** General purpose chat and instruction following
+
+#### Mistral 7B Instruct v0.1 (Higher Quality)
+- **Quantization:** Q5_K_M
+- **File Size:** ~4.8 GB
+- **Memory Usage:** ~7 GB VRAM (with appropriate layers offloaded)
+- **Download URL:** https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF
+- **Filename:** mistral-7b-instruct-v0.1.Q5_K_M.gguf
+- **Use Case:** Better quality output with slightly higher resource usage
+
+### Alternative Models
+
+#### Roleplay Mistral 7B (Q4_K_M)
+- **Quantization:** Q4_K_M
+- **File Size:** ~4.1 GB
+- **Memory Usage:** ~6 GB VRAM (with appropriate layers offloaded)
+- **Download URL:** https://huggingface.co/TheBloke/Roleplay-Mistral-7B-GGUF
+- **Filename:** Roleplay-Mistral-7B.Q4_K_M.gguf
+- **Use Case:** Roleplaying and creative writing
+
+#### Roleplay Mistral 7B (Q5_K_M)
+- **Quantization:** Q5_K_M
+- **File Size:** ~4.8 GB
+- **Memory Usage:** ~7 GB VRAM (with appropriate layers offloaded)
+- **Download URL:** https://huggingface.co/TheBloke/Roleplay-Mistral-7B-GGUF
+- **Filename:** Roleplay-Mistral-7B.Q5_K_M.gguf
+- **Use Case:** Higher quality roleplaying with more detailed responses
+
+## Installation Instructions
+
+1. Create the models directory:
+   ```powershell
+   mkdir -p models
+   ```
+
+2. Download models using one of these methods:
+
+   **Method A: Using Hugging Face CLI (recommended)**
+   ```powershell
+   # Install Hugging Face Hub CLI if not already installed
+   pip install huggingface_hub
+
+   # Download Mistral 7B Instruct Q4_K_M
+   huggingface-cli download TheBloke/Mistral-7B-Instruct-v0.1-GGUF mistral-7b-instruct-v0.1.Q4_K_M.gguf --local-dir models --local-dir-use-symlinks False
+   ```
+
+   **Method B: Manual Download**
+   - Visit the Download URL listed above for each model
+   - Download the specified .gguf file
+   - Place it in the models directory
+
+3. Verify installation:
+   ```powershell
+   dir models
+   # Should show your downloaded .gguf files
+   ```
+
+## Performance Recommendations for RTX 3060 12GB
+
+### For Q4_K_M models:
+```
+LLM_THREADS=8
+LLM_CTX=4096
+LLM_GPULAYERS=35
+```
+
+### For Q5_K_M models (if you have enough VRAM):
+```
+LLM_THREADS=8
+LLM_CTX=4096
+LLM_GPULAYERS=30
+```
+
+### Memory-constrained setups:
+```
+LLM_THREADS=4
+LLM_CTX=2048
+LLM_GPULAYERS=20
+```
+
+## Model Selection Guide
+
+- **For general use and best compatibility:** Mistral 7B Instruct v0.1 Q4_K_M
+- **For higher quality output:** Mistral 7B Instruct v0.1 Q5_K_M
+- **For roleplaying and creative tasks:** Roleplay-Mistral variants
+- **For limited VRAM:** Use Q4_K_M quantization and reduce GPULAYERS
+
+## Troubleshooting
+
+- **Out of memory errors:** Reduce LLM_GPULAYERS or use Q4 instead of Q5
+- **Slow generation:** Reduce context size (LLM_CTX) or model size
+- **Poor quality output:** Try Q5_K_M quantization for better results
+
+## Update Instructions
+
+Check for newer model versions at:
+- https://huggingface.co/TheBloke (for TheBloke's quantizations)
+- https://huggingface.co/mistralai (for official Mistral models)
+
+Replace old model files when updating to benefit from model improvements.

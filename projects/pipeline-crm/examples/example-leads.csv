@@ -1,0 +1,9 @@
+Name,Type,Status,Priority,Contact Name,Contact Email,Contact Role,Contact Phone,Contact LinkedIn,Website,Country,Location,Tags,Notes
+Northwind Games,studio,new,high,Jamie Rivera,jamie@northwind-games.example,Head of Design,+1-555-0101,,https://northwind-games.example,Canada,Toronto,"indie,narrative",Example lead. Small team building a story-driven RPG.
+Lantern Interactive,studio,contacted,medium,Sam Okafor,sam@lantern-interactive.example,Producer,+44-555-0102,,https://lantern-interactive.example,United Kingdom,Leeds,"mobile,live-ops",Example lead. Replied to first email.
+Pixel Harbor,studio,researched,low,Priya Nair,priya@pixel-harbor.example,CEO,+31-555-0103,,https://pixel-harbor.example,Netherlands,Utrecht,"indie,prototyping",Example lead. Needs research on current projects.
+Redwood Publishing,publisher,contacted,high,Chris Lindqvist,chris@redwood-publishing.example,Acquisitions,+46-555-0104,,https://redwood-publishing.example,Sweden,Stockholm,"publisher,pc",Example publisher. Meeting booked.
+Summit Ventures,investor,new,medium,Dana Whitfield,dana@summit-ventures.example,Partner,+1-555-0105,,https://summit-ventures.example,USA,Austin,"seed,games","Example investor. Seed stage, games and media."
+Harbor Light Capital,investor,tracking,medium,Mika Tanaka,mika@harborlight.example,Associate,+81-555-0106,,https://harborlight.example,Japan,Tokyo,"pre-seed,tools",Example investor. Following their newsletter.
+Copperfield Studio,studio,new,high,Elena Petrova,elena@copperfield-studio.example,Creative Director,+49-555-0107,,https://copperfield-studio.example,Germany,Berlin,"AA,narrative",Example lead. Large back catalogue of story games.
+Blue Meridian Games,studio,contacted,low,Tomas Silva,tomas@bluemeridian.example,CTO,+55-555-0108,,https://bluemeridian.example,Brazil,Sao Paulo,"mobile,casual",Example lead. No reply after two follow-ups.

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api_config>
+  <!-- ==============================================================================
+       SERVER CONFIGURATION
+       ============================================================================== -->
+  <server>
+    <host>0.0.0.0</host>
+    <port>8000</port>
+    <workers>1</workers>
+  </server>
+
+  <!-- ==============================================================================
+       RETRIEVAL PARAMETERS
+       ============================================================================== -->
+  <retrieval>
+    <default_k>5</default_k>
+    <max_k>10</max_k>
+    <timeout_ms>1000</timeout_ms>
+  </retrieval>
+
+  <!-- ==============================================================================
+       SCORING WEIGHTS (from retrieval contract)
+       ============================================================================== -->
+  <scoring>
+    <semantic>0.60</semantic>
+    <entity>0.25</entity>
+    <type>0.10</type>
+    <canon>0.05</canon>
+    <graph>0.08</graph>
+  </scoring>
+
+  <!-- ==============================================================================
+       LOGGING CONFIGURATION
+       ============================================================================== -->
+  <logging>
+    <level>INFO</level>
+    <format>%(asctime)s - %(name)s - %(levelname)s - %(message)s</format>
+  </logging>
+</api_config>

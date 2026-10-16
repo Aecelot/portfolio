@@ -1,0 +1,13 @@
+{
+  "name": "kcppctl",
+  "version": "0.1.0",
+  "dependencies": [
+    "cpr",
+    "nlohmann-json",
+    "fmt",
+    "spdlog",
+    "cpp-httplib",
+    "gtest",
+    "tinyxml2"
+  ]
+}
